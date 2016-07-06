@@ -1,123 +1,130 @@
-<!doctype html>
-<html class="no-js" lang="">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title></title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <link rel="apple-touch-icon" href="apple-touch-icon.png">
-        <!-- Place favicon.ico in the root directory -->
+<!DOCTYPE html>
+<html class="ocks-org do-not-copy">
+<meta charset="utf-8">
+<title>Sankey Diagram</title>
+<style>
 
-        <link rel="stylesheet" href="css/normalize.css">
-        <link rel="stylesheet" href="css/main.css">
-        <script src="js/vendor/modernizr-2.8.3.min.js"></script>
-    </head>
-    <body>
-        <!--[if lt IE 8]>
-            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-        <![endif]-->
+    @import url(../style.css?aea6f0a);
 
-        <!-- Add your site or application content here -->
-        <p>HACKATON</p>
+    #chart {
+        height: 500px;
+    }
 
-        <script src="//d3js.org/d3.v2.min.js" charset="utf-8"></script>
-        <script src="https://code.jquery.com/jquery-{{JQUERY_VERSION}}.min.js"></script>
-        <script>window.jQuery || document.write('<script src="js/vendor/jquery-{{JQUERY_VERSION}}.min.js"><\/script>')</script>
-        <script src="js/plugins.js"></script>
-        <script src="js/main.js"></script>
+    .node rect {
+        cursor: move;
+        fill-opacity: .9;
+        shape-rendering: crispEdges;
+    }
 
-        <script src="//d3js.org/d3.v2.min.js" charset="utf-8"></script>
-        <script src="js/sankey.js"></script>
-        <script>
+    .node text {
+        pointer-events: none;
+        text-shadow: 0 1px 0 #fff;
+    }
 
-            var margin = {top: 1, right: 1, bottom: 6, left: 1},
-                width = 960 - margin.left - margin.right,
-                height = 500 - margin.top - margin.bottom;
+    .link {
+        fill: none;
+        stroke: #000;
+        stroke-opacity: .2;
+    }
 
-            var formatNumber = d3.format(",.0f"),
-                format = function(d) { return formatNumber(d) + " TWh"; },
-                color = d3.scale.category20();
+    .link:hover {
+        stroke-opacity: .5;
+    }
 
-            var svg = d3.select("#chart").append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-                .append("g")
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+</style>
+<body>
 
-            var sankey = d3.sankey()
-                .nodeWidth(15)
-                .nodePadding(10)
-                .size([width, height]);
+<header/>
 
-            var path = sankey.link();
+<h1>Kenshoo - Hackaton 2016</h1>
 
-            d3.json("kenshoo.json", function(energy) {
+<p id="chart">
+    <script src="//d3js.org/d3.v2.min.js" charset="utf-8"></script>
+    <script src="js/sankey.js"></script>
+    <script>
 
-                sankey
-                    .nodes(energy.nodes)
-                    .links(energy.links)
-                    .layout(32);
+        var margin = {top: 1, right: 1, bottom: 6, left: 1},
+            width = 960 - margin.left - margin.right,
+            height = 500 - margin.top - margin.bottom;
 
-                var link = svg.append("g").selectAll(".link")
-                    .data(energy.links)
-                    .enter().append("path")
-                    .attr("class", "link")
-                    .attr("d", path)
-                    .style("stroke-width", function(d) { return Math.max(1, d.dy); })
-                    .sort(function(a, b) { return b.dy - a.dy; });
+        var formatNumber = d3.format(",.0f"),
+            format = function(d) { return formatNumber(d) + " TWh"; },
+            color = d3.scale.category20();
 
-                link.append("title")
-                    .text(function(d) { return d.source.name + " → " + d.target.name + "\n" + format(d.value); });
+        var svg = d3.select("#chart").append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-                var node = svg.append("g").selectAll(".node")
-                    .data(energy.nodes)
-                    .enter().append("g")
-                    .attr("class", "node")
-                    .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
-                    .call(d3.behavior.drag()
-                        .origin(function(d) { return d; })
-                        .on("dragstart", function() { this.parentNode.appendChild(this); })
-                        .on("drag", dragmove));
+        var sankey = d3.sankey()
+            .nodeWidth(15)
+            .nodePadding(10)
+            .size([width, height]);
 
-                node.append("rect")
-                    .attr("height", function(d) { return d.dy; })
-                    .attr("width", sankey.nodeWidth())
-                    .style("fill", function(d) { return d.color = color(d.name.replace(/ .*/, "")); })
-                    .style("stroke", function(d) { return d3.rgb(d.color).darker(2); })
-                    .append("title")
-                    .text(function(d) { return d.name + "\n" + format(d.value); });
+        var path = sankey.link();
 
-                node.append("text")
-                    .attr("x", -6)
-                    .attr("y", function(d) { return d.dy / 2; })
-                    .attr("dy", ".35em")
-                    .attr("text-anchor", "end")
-                    .attr("transform", null)
-                    .text(function(d) { return d.name; })
-                    .filter(function(d) { return d.x < width / 2; })
-                    .attr("x", 6 + sankey.nodeWidth())
-                    .attr("text-anchor", "start");
+        d3.json("kenshoo.json", function(energy) {
 
-                function dragmove(d) {
-                    d3.select(this).attr("transform", "translate(" + d.x + "," + (d.y = Math.max(0, Math.min(height - d.dy, d3.event.y))) + ")");
-                    sankey.relayout();
-                    link.attr("d", path);
-                }
-            });
+            sankey
+                .nodes(energy.nodes)
+                .links(energy.links)
+                .layout(32);
 
-        </script>
+            var link = svg.append("g").selectAll(".link")
+                .data(energy.links)
+                .enter().append("path")
+                .attr("class", "link")
+                .attr("d", path)
+                .style("stroke-width", function(d) { return Math.max(1, d.dy); })
+                .sort(function(a, b) { return b.dy - a.dy; });
 
+            link.append("title")
+                .text(function(d) { return d.source.name + " → " + d.target.name + "\n" + format(d.value); });
 
-        <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
-        <script>
-            (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
-            function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
-            e=o.createElement(i);r=o.getElementsByTagName(i)[0];
-            e.src='https://www.google-analytics.com/analytics.js';
-            r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
-            ga('create','UA-XXXXX-X','auto');ga('send','pageview');
-        </script>
-    </body>
-</html>
+            var node = svg.append("g").selectAll(".node")
+                .data(energy.nodes)
+                .enter().append("g")
+                .attr("class", "node")
+                .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+                .call(d3.behavior.drag()
+                    .origin(function(d) { return d; })
+                    .on("dragstart", function() { this.parentNode.appendChild(this); })
+                    .on("drag", dragmove));
+
+            node.append("rect")
+                .attr("height", function(d) { return d.dy; })
+                .attr("width", sankey.nodeWidth())
+                .style("fill", function(d) { return d.color = color(d.name.replace(/ .*/, "")); })
+                .style("stroke", function(d) { return d3.rgb(d.color).darker(2); })
+                .append("title")
+                .text(function(d) { return d.name + "\n" + format(d.value); });
+
+            node.append("text")
+                .attr("x", -6)
+                .attr("y", function(d) { return d.dy / 2; })
+                .attr("dy", ".35em")
+                .attr("text-anchor", "end")
+                .attr("transform", null)
+                .text(function(d) { return d.name; })
+                .filter(function(d) { return d.x < width / 2; })
+                .attr("x", 6 + sankey.nodeWidth())
+                .attr("text-anchor", "start");
+
+            function dragmove(d) {
+                d3.select(this).attr("transform", "translate(" + d.x + "," + (d.y = Math.max(0, Math.min(height - d.dy, d3.event.y))) + ")");
+                sankey.relayout();
+                link.attr("d", path);
+            }
+        });
+
+    </script>
+    <script>
+
+        GoogleAnalyticsObject = "ga", ga = function() { ga.q.push(arguments); }, ga.q = [], ga.l = +new Date;
+        ga("create", "UA-48272912-3", "ocks.org");
+        ga("send", "pageview");
+
+    </script>
+    <script async src="//www.google-analytics.com/analytics.js"></script>
