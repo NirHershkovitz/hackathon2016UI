@@ -1,0 +1,13 @@
+archive
+node_modules
+/.idea/*
+out/*
+*.iml
+*.ipr
+*.iws
+build
+.gradle
+*.swp
+*.swo
+*.jsb3
+
